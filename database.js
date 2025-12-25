@@ -4,4 +4,10 @@ const users = [
   { name: "boy", age: 1 },
 ];
 
-module.exports = users;
+const dummyUsersemail = [
+  { email: "prasanna@example.com", role: "admin", firstName: "Sai", lastName: "Prasanna" },
+  { email: "abhi@example.com", role: "user", firstName: "Abhi", lastName: "Sarika" },
+  { email: "anu@example.com", role: "manager", firstName: "Anu", lastName: "Priya" }
+];
+
+module.exports = { users, dummyUsersemail };
