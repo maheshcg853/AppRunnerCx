@@ -1,9 +1,11 @@
-FROM --platform=linux/arm64 node:20
+FROM node:20
 
-EXPOSE 3000
 WORKDIR /server
 COPY package.json package-lock.json ./
-RUN npm install
+
+RUN npm ci --omit-dev
+
 COPY . .
 
-ENTRYPOINT ["npm", "start"]
+EXPOSE 3000
+CMD ["npm", "start"]
