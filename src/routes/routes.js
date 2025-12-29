@@ -1,12 +1,15 @@
 const userRouter = require("./userRouter");
 const express = require("express");
 const healthRouter = require("./healthRouter");
+const tenantRouter = require("./tenantRouter");
+const authRouter = require("./authRouter");
 
 const router = express.Router();
 
 router.use("/health", healthRouter);
-// router.use("/auth");
+router.use("/auth", authRouter);
 router.use("/users", userRouter); // admins, event managers, workers, vendors
+router.use("/tenants", tenantRouter); // admins, event managers, workers, vendors
 // router.use("/events"); // event CRUD & assignment
 // router.use("/tasks"); // tasks, status updates
 // router.use("/notofications"); // WhatsApp and email integration

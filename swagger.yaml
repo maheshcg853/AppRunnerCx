@@ -1,0 +1,486 @@
+openapi: 3.0.3
+info:
+  title: EMDB API
+  version: 1.0.0
+  description: Tenant, Auth, and User APIs for EMDB (pg-promise + PostgreSQL)
+
+servers:
+  - url: http://localhost:4000/v1
+    description: Local
+  - url: https://kf3kgwa3ba.ap-south-1.awsapprunner.com
+    description: Dev
+
+tags:
+  - name: Tenants
+    description: Tenant management
+  - name: Auth
+    description: Authentication & registration
+  - name: Users
+    description: User management (CRUD)
+
+paths:
+  /tenants:
+    get:
+      tags: [Tenants]
+      summary: Get all tenants
+      responses:
+        "200":
+          description: List of tenants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tenant"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    post:
+      tags: [Tenants]
+      summary: Create a Tenant
+      description: Creates a new tenant record in the EMDB database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTenantRequest"
+            examples:
+              sample:
+                value:
+                  tenantId: "tenant_001"
+                  name: "Helm Corp"
+                  updatedBy: "Abdul"
+      responses:
+        "201":
+          description: Tenant created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateTenantResponse"
+        "400":
+          description: Validation or request error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Duplicate tenant (tenantId already exists)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tenants/{tenantId}:
+    get:
+      tags: [Tenants]
+      summary: Get a tenant by tenantId
+      parameters:
+        - name: tenantId
+          in: path
+          required: true
+          description: Tenant identifier (tenants.tenantId)
+          schema:
+            type: string
+            example: tenant_001
+      responses:
+        "200":
+          description: Tenant object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tenant"
+        "404":
+          description: Tenant not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenantNotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a user under a tenant
+      description: >
+        Creates a new user in a given tenant. Password is hashed on the backend.
+        Returns created user (without password) and optionally token if your API supports it.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+            examples:
+              sample:
+                value:
+                  tenantId: "tenant_001"
+                  username: "abdul"
+                  email: "abdul.s@criskasecurity.com"
+                  password: "MyStrongPassword@123"
+                  role: "admin"
+      responses:
+        "201":
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Duplicate username/email within the tenant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Tenant not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /users:
+    get:
+      tags: [Users]
+      summary: Get users (supports filters)
+      description: >
+        Fetch users. If tenantId is passed, it filters users inside that tenant.
+        If username/email are passed, it filters accordingly.
+      parameters:
+        - name: tenantId
+          in: query
+          required: false
+          schema:
+            type: string
+            example: tenant_001
+        - name: username
+          in: query
+          required: false
+          schema:
+            type: string
+            example: abdul
+        - name: email
+          in: query
+          required: false
+          schema:
+            type: string
+            example: abdul.s@criskasecurity.com
+        - name: role
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [admin, event_manager, vendor, customer]
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ACTIVE, DISABLED]
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    post:
+      tags: [Users]
+      summary: Create a user (admin/management)
+      description: Creates a user. (If you use /auth/register from FE, you can keep this for internal/admin usage.)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+            examples:
+              sample:
+                value:
+                  tenantId: "tenant_001"
+                  username: "vendor01"
+                  email: "vendor01@company.com"
+                  password: "SomePassword@123"
+                  role: "vendor"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateUserResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Duplicate username/email within the tenant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Tenant not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /users/{uid}:
+    get:
+      tags: [Users]
+      summary: Get a single user by uid
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        "200":
+          description: User object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  schemas:
+    # -------------------- TENANTS --------------------
+    CreateTenantRequest:
+      type: object
+      required: [tenantId, name]
+      properties:
+        tenantId:
+          type: string
+          minLength: 1
+          example: tenant_001
+        name:
+          type: string
+          minLength: 1
+          example: Helm Corp
+        updatedBy:
+          type: string
+          example: Abdul
+
+    Tenant:
+      type: object
+      required: [uid, tenantId, name, status]
+      properties:
+        uid:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        tenantId:
+          type: string
+          example: "tenant_001"
+        name:
+          type: string
+          example: "Helm Corp"
+        status:
+          type: string
+          example: "active"
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-12-29T10:30:00.000Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-12-29T10:30:00.000Z"
+        updatedBy:
+          nullable: true
+          oneOf:
+            - type: string
+            - type: "null"
+
+    CreateTenantResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Tenant created"
+        data:
+          $ref: "#/components/schemas/Tenant"
+
+    TenantNotFound:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          example: Tenant not found
+
+    # -------------------- AUTH / REGISTER --------------------
+    RegisterRequest:
+      type: object
+      required: [tenantId, username, email, password, role]
+      properties:
+        tenantId:
+          type: string
+          minLength: 1
+          example: tenant_001
+        username:
+          type: string
+          minLength: 2
+          example: abdul
+        email:
+          type: string
+          format: email
+          example: abdul.s@criskasecurity.com
+        password:
+          type: string
+          minLength: 8
+          example: MyStrongPassword@123
+        role:
+          type: string
+          enum: [admin, event_manager, vendor, customer]
+          example: admin
+
+    RegisterResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "User registered"
+        data:
+          $ref: "#/components/schemas/User"
+        token:
+          nullable: true
+          description: Present only if your backend returns a JWT on registration
+          oneOf:
+            - type: string
+            - type: "null"
+
+    # -------------------- USERS --------------------
+    CreateUserRequest:
+      type: object
+      required: [tenantId, username, email, password, role]
+      properties:
+        tenantId:
+          type: string
+          example: tenant_001
+        username:
+          type: string
+          example: vendor01
+        email:
+          type: string
+          format: email
+          example: vendor01@company.com
+        password:
+          type: string
+          minLength: 8
+          example: SomePassword@123
+        role:
+          type: string
+          enum: [admin, event_manager, vendor, customer]
+          example: vendor
+
+    CreateUserResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "User created"
+        data:
+          $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      required: [uid, tenant_uid, username, email, role, status, created_at]
+      properties:
+        uid:
+          type: string
+          format: uuid
+          example: "e5a639a8-7514-4b2b-a775-6af48743a293"
+        tenant_uid:
+          type: string
+          format: uuid
+          example: "7f5e0c8e-47a7-46dc-ba0d-3260760bf9d8"
+        tenantId:
+          type: string
+          description: Optional convenience field if your API returns it
+          example: "tenant_001"
+          nullable: true
+        username:
+          type: string
+          example: abdul
+        email:
+          type: string
+          format: email
+          example: abdul.s@criskasecurity.com
+        role:
+          type: string
+          enum: [admin, event_manager, vendor, customer]
+          example: admin
+        status:
+          type: string
+          example: active
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-12-29T10:30:00.000Z"
+
+    # -------------------- ERRORS --------------------
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Something went wrong
+        code:
+          nullable: true
+          oneOf:
+            - type: string
+            - type: "null"
+        details:
+          nullable: true
+          oneOf:
+            - type: object
+            - type: "null"
+
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          example: Internal server error
+
+  responses:
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

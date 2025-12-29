@@ -1,0 +1,55 @@
+const pgPromise = require("pg-promise");
+const { loadSecrets } = require("./secrets");
+const { testDbConnection } = require("./testDb");
+
+const pgp = pgPromise({
+  connect: async (client) => {
+    // console.log(client);
+    // await client.query(`SET search_path TO "emdb-schema", public`);
+  },
+  error: (err, e) => {
+    // e.query exists for query errors
+    // e.cn exists for connection errors
+    console.error("PostgreSQL error:", err);
+
+    if (e?.query) {
+      console.error("Query:", e.query);
+    }
+    if (e?.cn) {
+      console.error("Connection:", e.query);
+    }
+    if (e?.params) {
+      console.error("Params:", e.params);
+    }
+  },
+});
+
+let db;
+
+const initializeDb = async () => {
+  try {
+    const secrets = await loadSecrets();
+    db = pgp({
+      host: secrets.DB_HOST,
+      port: secrets.DB_PORT,
+      database: secrets.DB_NAME,
+      user: secrets.DB_USER,
+      password: secrets.DB_PASSWORD,
+
+      ssl:
+        process.env.DB_SSL === "true"
+          ? { rejectUnauthorized: false } // For lower envronments // checkHere
+          : false, // for prod
+
+      max: 10, // max connections // but checkHere
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+      options: "-c search_path=emdb-schema,public",
+    });
+  } catch (error) {
+    console.error("initializeDb failed", error);
+    process.exit(1);
+  }
+};
+
+module.exports = { initializeDb, db };

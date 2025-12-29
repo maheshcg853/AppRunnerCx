@@ -1,29 +1,30 @@
-const { dummyUsersemail} = require("../database");
+const { dummyUsersemail } = require("../../database");
+const { successRes, errorRes } = require("../models/response.model");
+const userServices = require("../services/user.service");
 
-const getAllUsers = (req, res) => {
-  const fakeUsers = [
-    { id: 1, name: "likith", role: "intern" },
-    { id: 2, name: "lohith", role: "employee" },
-  ];
- 
-  res.status(200).json({
-    success: true,
-    data: fakeUsers,
-  });
+const getUsersCtrl = async (req, res) => {
+  try {
+    const users = await userServices.getUsersService(req.query);
+    res.status(200).json(successRes("Success", users));
+  } catch (error) {
+    console.error("getUsersCtrl", error);
+    const erorRes = errorRes("getUsers Failed", {}, error.code, error);
+    return res.status(400).json(erorRes);
+  }
 };
- 
+
 const getUserById = (req, res) => {
   const { id } = req.params;
- 
+
   res.status(200).json({
     success: true,
     data: { id, name: "Dummy User", role: "worker" },
   });
 };
- 
+
 const createUser = (req, res) => {
   const { name, email, role } = req.body;
- 
+
   res.status(201).json({
     success: true,
     message: "User created successfully",
@@ -35,10 +36,10 @@ const createUser = (req, res) => {
     },
   });
 };
- 
+
 const loginUser = (req, res) => {
   const { email, password } = req.body;
- 
+
   if (email === "test@example.com" && password === "password") {
     return res.status(200).json({
       success: true,
@@ -46,13 +47,12 @@ const loginUser = (req, res) => {
       token: "fake-jwt-token",
     });
   }
- 
+
   res.status(401).json({
     success: false,
     message: "Invalid credentials",
   });
 };
-
 
 const getMe = (req, res) => {
   const { email } = req.body;
@@ -76,9 +76,9 @@ const getMe = (req, res) => {
   return res.status(200).json({
     success: true,
     data: {
-      user
+      user,
     },
   });
 };
 
-module.exports = { getAllUsers, getUserById, createUser, loginUser, getMe };
+module.exports = { getUsersCtrl, getUserById, createUser, loginUser, getMe };
