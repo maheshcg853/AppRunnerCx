@@ -26,7 +26,7 @@ const loadSecrets = async () => {
       throw new Error("SecretString is empty");
     }
 
-    console.log("loadSecrets Success", response.SecretString);
+    console.log("loadSecrets Success");
     return JSON.parse(response.SecretString);
   } catch (error) {
     console.error("loadSecrets Error", error);
