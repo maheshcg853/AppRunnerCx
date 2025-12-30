@@ -1,8 +1,9 @@
-const { db } = require("./db");
+const { getDb } = require("./db");
 
 async function testDbConnection() {
   try {
-    await debugDb();
+    // await debugDb();
+    const db = getDb();
     const res = await db.one("SELECT 1 AS ok");
     console.log("PostgreSQL connection success:", res.ok);
   } catch (err) {

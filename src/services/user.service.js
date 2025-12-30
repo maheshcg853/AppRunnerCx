@@ -1,6 +1,7 @@
-const { db } = require("../db/db");
+const { getDb } = require("../db/db");
 
 const createUserService = async (payload) => {
+  const db = getDb();
   const response = await db.one(
     `
         insert into users
@@ -41,6 +42,7 @@ const getUsersService = async (query) => {
     ? `where ${conditions.join(" and ")}`
     : "";
 
+  const db = getDb();
   const users = await db.any(
     `
       select

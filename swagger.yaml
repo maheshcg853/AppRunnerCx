@@ -12,11 +12,11 @@ servers:
 
 tags:
   - name: Tenants
-    description: Tenant management
+    description: Tenant Management
   - name: Auth
-    description: Authentication & registration
+    description: Authentication & Registration
   - name: Users
-    description: User management (CRUD)
+    description: User Management
 
 paths:
   /tenants:

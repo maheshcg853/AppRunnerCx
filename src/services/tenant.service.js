@@ -1,6 +1,7 @@
-const { db } = require("../db/db");
+const { getDb } = require("../db/db");
 
 const fetchAllTenantsService = async (req) => {
+  const db = getDb();
   const response = await db.any(`
   SELECT uid, tenant_id, name, status, created_at, updated_at
   FROM "emdb-schema".tenants
@@ -11,6 +12,7 @@ const fetchAllTenantsService = async (req) => {
 };
 
 const getTenantByIdService = async (tenantId) => {
+  const db = getDb();
   const response = await db.oneOrNone(
     `
       SELECT uid, tenant_id, name, status, created_at, updated_at
@@ -27,6 +29,7 @@ const createTenantService = async (req) => {
   const { tenantId, name, updatedBy } = req.body;
   // const name = req.body.name;
 
+  const db = getDb();
   const response = await db.one(
     `
       INSERT INTO tenants (tenant_id, name, updated_by)

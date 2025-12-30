@@ -1,6 +1,5 @@
 const pgPromise = require("pg-promise");
-const { loadSecrets } = require("./secrets");
-const { testDbConnection } = require("./testDb");
+const { loadSecrets, loadLocalSecrets } = require("./secrets");
 
 const pgp = pgPromise({
   connect: async (client) => {
@@ -29,7 +28,10 @@ let db;
 const initializeDb = async () => {
   console.log("initializeDb starts");
   try {
-    const secrets = await loadSecrets();
+    const secrets =
+      process.env.NODE_ENV === "local"
+        ? loadLocalSecrets()
+        : await loadSecrets();
     console.log("initializeDb secrets fetched successfully");
 
     db = pgp({
@@ -56,4 +58,9 @@ const initializeDb = async () => {
   }
 };
 
-module.exports = { initializeDb, db };
+const getDb = () => {
+  if (!db) throw new Error("DB not initialized. Call initializeDb() first.");
+  return db;
+};
+
+module.exports = { initializeDb, getDb };
