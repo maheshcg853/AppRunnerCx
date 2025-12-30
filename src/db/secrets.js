@@ -12,6 +12,7 @@ const client = new SecretsManagerClient({
 
 const loadSecrets = async () => {
   const secret_name = process.env.SECRET_NAME;
+  console.log("loadSecrets Start", { secret_name });
 
   try {
     const command = new GetSecretValueCommand({
@@ -21,12 +22,14 @@ const loadSecrets = async () => {
     const response = await client.send(command);
 
     if (!response.SecretString) {
+      console.log("loadSecrets Failed", response);
       throw new Error("SecretString is empty");
     }
 
+    console.log("loadSecrets Success", response.SecretString);
     return JSON.parse(response.SecretString);
   } catch (error) {
-    console.error("loadSecrets", error);
+    console.error("loadSecrets Error", error);
     // For a list of exceptions thrown, see
     // https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
     throw error;

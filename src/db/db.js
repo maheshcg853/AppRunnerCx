@@ -30,6 +30,8 @@ const initializeDb = async () => {
   console.log("initializeDb starts");
   try {
     const secrets = await loadSecrets();
+    console.log("initializeDb secrets fetched successfully");
+
     db = pgp({
       host: secrets.DB_HOST,
       port: secrets.DB_PORT,
@@ -47,6 +49,7 @@ const initializeDb = async () => {
       connectionTimeoutMillis: 5000,
       options: "-c search_path=emdb-schema,public",
     });
+    console.log("initializeDb Finalised Successfully");
   } catch (error) {
     console.error("initializeDb failed", error);
     process.exit(1);
