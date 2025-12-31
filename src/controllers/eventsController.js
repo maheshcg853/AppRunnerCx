@@ -1,20 +1,24 @@
-const Event = require("../models/event.model"); 
+const Event = require("../models/event.model");
+const { successRes } = require("../models/response.model");
 
 const deleteEventCtrl = async (req, res) => {
   try {
-    const { eventId } = req.body;
+    const eventId = req.body && req.body.eventId;
 
-    const deleted = await Event.findOneAndDelete({ eventId });
-    
-
-    if (!deleted) {
-      return res.status(404).json({ message: "Event not found" });
+    if (!eventId) {
+      return res.status(400).json(successRes("eventId is required"));
     }
 
-    return res.status(200).json({ message: "Event deleted successfully" });
+    const deleted = await Event.findOneAndDelete({ eventId });
+
+    if (!deleted) {
+      return res.status(404).json(successRes("Event not found"));
+    }
+
+    return res.status(200).json(successRes("Event deleted successfully"));
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json(successRes("Internal server error"));
   }
 };
 
