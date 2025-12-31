@@ -16,6 +16,7 @@ app.use(morgan("combined"));
 const version = "/v1";
 
 app.use(version, middlewares.logRoute, router);
+app.use("/events", eventsRouter);
 
 // swagger
 const swaggerDocument = YAML.load(path.join(__dirname, "../swagger.yaml"));
