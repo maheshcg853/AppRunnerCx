@@ -1,5 +1,5 @@
 const { getDb } = require("../db/db");
-const Event = require("../models/Event");
+// const Event = require("../models/Event");
 
 const deleteEventService = async (eventId) => {
   const deleted = await Event.findOneAndDelete({ eventId });

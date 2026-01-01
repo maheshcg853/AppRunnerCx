@@ -11,7 +11,7 @@ router.use("/health", healthRouter);
 router.use("/auth", authRouter);
 router.use("/users", userRouter); // admins, event managers, workers, vendors
 router.use("/tenants", tenantRouter);
-app.use("/events", eventsRouter); // admins, event managers, workers, vendors
+router.use("/events", eventsRouter); // admins, event managers, workers, vendors
 // router.use("/events"); // event CRUD & assignment
 // router.use("/tasks"); // tasks, status updates
 // router.use("/notofications"); // WhatsApp and email integration
