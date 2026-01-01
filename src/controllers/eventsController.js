@@ -1,25 +1,27 @@
-const Event = require("../models/event.model");
-const { successRes } = require("../models/response.model");
+const { deleteEventService } = require("../services/events.service");
 
-const deleteEventCtrl = async (req, res) => {
+const deleteEventController = async (req, res) => {
   try {
-    const eventId = req.body && req.body.eventId;
+    const { eventId } = req.params;
 
     if (!eventId) {
       return res.status(400).json(successRes("eventId is required"));
     }
 
-    const deleted = await Event.findOneAndDelete({ eventId });
+    const deleted = await deleteEventService(eventId);
 
     if (!deleted) {
       return res.status(404).json(successRes("Event not found"));
     }
 
-    return res.status(200).json(successRes("Event deleted successfully"));
+    return res
+      .status(200)
+      .json(successRes("Event deleted successfully", deleted));
   } catch (err) {
-    console.error(err);
-    return res.status(500).json(successRes("Internal server error"));
+    return res
+      .status(500)
+      .json(successRes(err.message || "Internal server error",err));
   }
 };
 
-module.exports = { deleteEventCtrl };
+module.exports = { deleteEventController };

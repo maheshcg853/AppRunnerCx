@@ -1,15 +1,28 @@
 const { getDb } = require("../db/db");
+const Event = require("../models/Event");
+
+const deleteEventService = async (eventId) => {
+  const deleted = await Event.findOneAndDelete({ eventId });
+
+  if (!deleted) {
+    const err = new Error("Event not found");
+    err.statusCode = 404;
+    throw err;
+  }
+
+  return deleted;
+};
 
 const createUserService = async (payload) => {
   const db = getDb();
   const response = await db.one(
     `
-        insert into users
-          (tenant_uid, username, email, password_hash, role)
-        values
-          ($(tenant_uid), $(username), $(email), $(password_hash), $(role))
-        returning
-          uid, username, email, role, status
+      insert into users
+        (tenant_uid, username, email, password_hash, role)
+      values
+        ($(tenant_uid), $(username), $(email), $(password_hash), $(role))
+      returning
+        uid, username, email, role, status
     `,
     payload
   );
@@ -56,11 +69,15 @@ const getUsersService = async (query) => {
       join tenants t on t.uid = u.tenant_uid
       ${whereClause}
       limit $(limit) offset $(offset)
-      `,
+    `,
     { ...params, limit, offset }
   );
 
   return users;
 };
 
-module.exports = { createUserService, getUsersService };
+module.exports = {
+  createUserService,
+  getUsersService,
+  deleteEventService,
+};

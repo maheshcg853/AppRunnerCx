@@ -33,10 +33,10 @@ const authRegisterVal = (req, res, next) => {
 };
 
 const deleteEventVal = (req, res, next) => {
-  const eventId = req.body && req.body.eventId;
+  const eventId = req.body?.eventId;
 
   if (!eventId) {
-    return res.status(400).json({ message: "eventId is required" });
+    return res.status(400).json(errorRes("eventId is required"));
   }
 
   next();
