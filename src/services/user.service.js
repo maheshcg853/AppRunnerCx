@@ -30,7 +30,7 @@ const createUserService = async (payload) => {
   return response;
 };
 
-const getUsersService = async (query) => {
+const getUsersService = async (query, providePasswordHash) => {
   const limit = query.limit || 50;
   const offset = query.offset || 0;
 
@@ -64,6 +64,7 @@ const getUsersService = async (query) => {
         u.email,
         u.role,
         u.status,
+        ${providePasswordHash ? "u.password_hash," : ""}
         t.tenant_id
       from users u
       join tenants t on t.uid = u.tenant_uid

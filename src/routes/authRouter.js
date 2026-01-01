@@ -10,4 +10,12 @@ authRouter.post(
   controllers.registerCtrl
 );
 
+authRouter.post(
+  "/login",
+  validations.loginValidation,
+  controllers.loadUser,
+  controllers.authenticateUserCtrl
+);
+authRouter.post("/logout", controllers.logoutCtrl);
+
 module.exports = authRouter;

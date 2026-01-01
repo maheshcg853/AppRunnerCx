@@ -9,7 +9,12 @@ async function verifyPassword(plainPassword, passwordHash) {
   return bcrypt.compare(plainPassword, passwordHash);
 }
 
+const comparePassword = async (plainPassword, hash) => {
+  return await bcrypt.compare(plainPassword, hash);
+};
+
 module.exports = {
   hashPassword,
   verifyPassword,
+  comparePassword,
 };

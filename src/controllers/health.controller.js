@@ -1,4 +1,4 @@
-const pool = require("../db/db");
+const { getDb } = require("../db/db");
 const { successRes, errorRes } = require("../models/response.model");
 
 const healthPost = (req, res) => {
@@ -9,7 +9,8 @@ const healthPost = (req, res) => {
 
 const getHealth = async (req, res) => {
   try {
-    const response = await pool.query("SELECT 1");
+    const db = getDb();
+    const response = await db.one("SELECT 1");
     const resDetails = {};
     console.log("Success: getHealth => controller =>", response);
     res.status(200).json(successRes("Success", resDetails));

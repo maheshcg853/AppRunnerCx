@@ -1,3 +1,5 @@
+const errorCodes = require("../constants/errorCodes.constants");
+
 function successRes(message, details = {}, optionalCode) {
   return {
     code: optionalCode || "0000",
@@ -7,28 +9,29 @@ function successRes(message, details = {}, optionalCode) {
 }
 
 function errorRes(message, details = {}, optionalCode, error) {
-  if (error?.code === "23502") {
+  const code = optionalCode || error?.code || errorCodes.UN_AUTH;
+
+  if (code === errorCodes.MISSING_FIELDS) {
     return {
-      code: "23502",
+      code,
       message: "Missing Fields",
       details: { message: `${error?.column} is required` },
     };
   }
 
-  // return { status: 500, message: "Internal server error" };
-
-  if (error?.code === "23505") {
+  if (code === errorCodes.DUPLICATES) {
     return {
-      code: "23505",
+      code,
       message: "Duplicate value",
       details: { message: `Constraint: ${error?.constraint}` },
     };
   }
 
+  const detaledObj = typeof details === "string" ? { error: details } : details;
   return {
-    code: optionalCode || "9999",
+    code: code,
     message,
-    details,
+    details: detaledObj,
   };
 }
 

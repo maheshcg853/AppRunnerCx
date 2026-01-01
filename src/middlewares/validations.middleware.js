@@ -38,6 +38,16 @@ const deleteEventVal = (req, res, next) => {
   if (!eventId) {
     return res.status(400).json(errorRes("eventId is required"));
   }
+  next();
+};
+
+const loginValidation = (req, res, next) => {
+  if (!req.body.tenantId) {
+    return res.status(400).json(errorRes("Missing Tenant ID", {}));
+  }
+  if (!req.body.username || !req.body.password) {
+    return res.status(400).json(errorRes("Missing fields", {}));
+  }
 
   next();
 };
@@ -47,4 +57,5 @@ module.exports = {
   getTenantByIdVal,
   authRegisterVal,
   deleteEventVal,
+  loginValidation,
 };

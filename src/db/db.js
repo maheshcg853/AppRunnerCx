@@ -26,7 +26,7 @@ const pgp = pgPromise({
 let db;
 
 const initializeDb = async () => {
-  console.log("initializeDb starts");
+  console.log("Initializing DB...");
   try {
     const secrets =
       process.env.NODE_ENV === "local"
@@ -51,9 +51,9 @@ const initializeDb = async () => {
       connectionTimeoutMillis: 5000,
       options: "-c search_path=emdb-schema,public",
     });
-    console.log("initializeDb Finalised Successfully");
+    console.log("initializeDb Successfully...");
   } catch (error) {
-    console.error("initializeDb failed", error);
+    console.error("initializeDb Failed...", error);
     process.exit(1);
   }
 };

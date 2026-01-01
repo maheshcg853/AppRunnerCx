@@ -54,31 +54,17 @@ const loginUser = (req, res) => {
   });
 };
 
-const getMe = (req, res) => {
-  const { email } = req.body;
-
-  if (!email) {
-    return res.status(400).json({
-      success: false,
-      message: "Email is required",
-    });
+const getMeCtrl = (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json(errorRes("Not authenticated"));
   }
-
-  const user = dummyUsersemail.find((u) => u.email === email);
-
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: "User not found",
-    });
-  }
-
-  return res.status(200).json({
-    success: true,
-    data: {
-      user,
-    },
-  });
+  return res.status(200).json(successRes("Current user", req.session.user));
 };
 
-module.exports = { getUsersCtrl, getUserById, createUser, loginUser, getMe };
+module.exports = {
+  getUsersCtrl,
+  getUserById,
+  createUser,
+  loginUser,
+  getMeCtrl,
+};

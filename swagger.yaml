@@ -17,6 +17,8 @@ tags:
     description: Authentication & Registration
   - name: Users
     description: User Management
+  - name: Redis Session
+    description: Redis Session Management
 
 paths:
   /tenants:
@@ -150,6 +152,75 @@ paths:
         "500":
           $ref: "#/components/responses/InternalServerError"
 
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login a user
+      description: Authenticate user and create a server-side session (cookie). Returns session info.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+            examples:
+              sample:
+                value:
+                  username: "john"
+                  password: "password123"
+                  tenantId: "tenant"
+      responses:
+        "200":
+          description: Login successful (session cookie set)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout current session
+      description: Destroys the current server-side session and clears cookie.
+      responses:
+        "200":
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogoutResponse"
+        "400":
+          description: Logout failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current authenticated user
+      description: Returns the current user stored in session. Requires session cookie.
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /users:
     get:
       tags: [Users]
@@ -274,6 +345,65 @@ paths:
         "500":
           $ref: "#/components/responses/InternalServerError"
 
+  /redis-session:
+    get:
+      tags: [Redis Session]
+      summary: Get current session data
+      description: Retrieves the current user session data from Redis
+      responses:
+        "200":
+          description: Session data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionResponse"
+        "400":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags: [Redis Session]
+      summary: Delete session data
+      description: Clears the current session from Redis (logout)
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sessionID]
+              properties:
+                tenantId:
+                  type: string
+                  example: abcdef
+            examples:
+              sample:
+                value:
+                  sessionID: "abcdef"
+      responses:
+        "200":
+          description: Session deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: "0000"
+                  message:
+                    type: string
+                    example: "Session deleted"
+        "400":
+          description: Failed to delete session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     # -------------------- TENANTS --------------------
@@ -382,6 +512,46 @@ components:
             - type: string
             - type: "null"
 
+    # -------------------- AUTH / LOGIN --------------------
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          example: username
+        password:
+          type: string
+          example: password123
+        tenantId:
+          type: string
+          example: password
+
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Login successful"
+        data:
+          type: object
+          properties:
+            sessionID:
+              type: string
+              example: "abc123def456"
+            user:
+              $ref: "#/components/schemas/User"
+
+    LogoutResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "0000"
+        message:
+          type: string
+          example: "Logout successful"
+
     # -------------------- USERS --------------------
     CreateUserRequest:
       type: object
@@ -450,6 +620,84 @@ components:
           type: string
           format: date-time
           example: "2025-12-29T10:30:00.000Z"
+
+    # -------------------- REDIS SESSION --------------------
+    SessionResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "0000"
+        message:
+          type: string
+          example: "Success"
+        details:
+          type: object
+          properties:
+            sessionID:
+              type: string
+              example: "abc123def456ghi789"
+            views:
+              type: integer
+              example: 1
+            user:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: "u1"
+                role:
+                  type: string
+                  enum: [admin, user, vendor]
+                  example: "admin"
+
+    SessionDetailResponse:
+      type: object
+      properties:
+        sessionID:
+          type: string
+          example: "abc123def456ghi789"
+        views:
+          type: integer
+          example: 5
+        session:
+          type: object
+          description: Full session object with all stored data
+          properties:
+            views:
+              type: integer
+              example: 5
+            user:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: "u1"
+                role:
+                  type: string
+                  example: "admin"
+
+    SessionSaveRequest:
+      type: object
+      properties:
+        user:
+          type: object
+          required: [id, role]
+          properties:
+            id:
+              type: string
+              example: "user-123"
+            role:
+              type: string
+              enum: [admin, user, vendor]
+              example: "admin"
+            name:
+              type: string
+              example: "John Doe"
+            email:
+              type: string
+              format: email
+              example: "john@example.com"
 
     # -------------------- ERRORS --------------------
     ErrorResponse:
