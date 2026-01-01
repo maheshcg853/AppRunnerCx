@@ -32,4 +32,19 @@ const authRegisterVal = (req, res, next) => {
   next();
 };
 
-module.exports = { createTenantVal, getTenantByIdVal, authRegisterVal };
+const deleteEventVal = (req, res, next) => {
+  const eventId = req.body?.eventId;
+
+  if (!eventId) {
+    return res.status(400).json(errorRes("eventId is required"));
+  }
+
+  next();
+};
+
+module.exports = {
+  createTenantVal,
+  getTenantByIdVal,
+  authRegisterVal,
+  deleteEventVal,
+};
