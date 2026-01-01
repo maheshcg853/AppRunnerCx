@@ -92,7 +92,6 @@ const authenticateUserCtrl = async (req, res, next) => {
     return res.status(200).json(
       successRes("Login successful", {
         sessionID: req.sessionID,
-        user: req.session.user,
       })
     );
   } catch (error) {

@@ -12,7 +12,7 @@ const YAML = require("yamljs");
 const swaggerUi = require("swagger-ui-express");
 const path = require("path");
 
-const port = process.env.PORT || 4001;
+const port = process.env.PORT || 3000;
 
 console.log("App Starting...");
 

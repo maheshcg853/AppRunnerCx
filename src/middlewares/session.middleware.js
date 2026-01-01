@@ -20,6 +20,7 @@ async function buildSessionMiddleware() {
   const redisClient = await connectRedis();
 
   const isProd = process.env.NODE_ENV === "production";
+  console.log("session middleware", isProd);
 
   return session({
     store: new RedisStore({ client: redisClient }),
