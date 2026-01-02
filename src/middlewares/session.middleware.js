@@ -24,8 +24,10 @@ async function buildSessionMiddleware() {
 
   return session({
     store: new RedisStore({ client: redisClient }),
-    name: process.env.SESSION_COOKIE_NAME || "emdb.sid",
-    secret: process.env.SESSION_SECRET,
+    name: "emdb.sid",
+    // name: process.env.SESSION_COOKIE_NAME || "emdb.sid",
+    secret: "super-secret",
+    // secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
 
@@ -38,7 +40,8 @@ async function buildSessionMiddleware() {
 
       // If FE and BE are on different domains: use "none".
       // If same site: use "lax".
-      sameSite: process.env.SESSION_SAMESITE || (isProd ? "none" : "lax"),
+      // sameSite: process.env.SESSION_SAMESITE || (isProd ? "none" : "lax"),
+      sameSite: "none",
 
       maxAge: Number(process.env.SESSION_MAX_AGE_MS || 86400000), // 1 day
     },

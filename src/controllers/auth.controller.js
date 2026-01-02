@@ -105,7 +105,8 @@ const logoutCtrl = (req, res) => {
     if (err) {
       return res.status(400).json(errorRes("Logout failed"));
     }
-    res.clearCookie(process.env.SESSION_COOKIE_NAME || "emdb.sid");
+    res.clearCookie("emdb.sid");
+    // res.clearCookie(process.env.SESSION_COOKIE_NAME || "emdb.sid");
     return res.status(200).json(successRes("Logout successful"));
   });
 };
