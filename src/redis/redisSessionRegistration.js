@@ -14,6 +14,7 @@ const registerRedis = async (app) => {
     console.log("Redis connection Success");
   } catch (e) {
     console.error("Redis connection Failed", e);
+    process.exit(1);
   }
 };
 

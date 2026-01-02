@@ -10,8 +10,9 @@ let client;
 function getRedisClient() {
   if (client) return client;
 
+  // const redisUrl = process.env.REDIS_URL;
   const redisUrl =
-    "rediss://master.em-redis-cluster-info.3xkamd.aps1.cache.amazonaws.com:6379";
+    "redis://master.em-redis-cluster-info.3xkamd.aps1.cache.amazonaws.com:6379";
   console.log("anv variables", {
     redisUrl,
     SESSION_SECRET: "super-secret",
@@ -22,7 +23,7 @@ function getRedisClient() {
   });
   if (!redisUrl) throw new Error("REDIS_URL is missing");
 
-  const isTls = true;
+  const isTls = false;
   // const isTls =
   //   process.env.REDIS_TLS === "true" || redisUrl.startsWith("rediss://");
 
@@ -37,7 +38,10 @@ function getRedisClient() {
     },
   });
 
-  client.on("error", (err) => console.error("Redis error:", err));
+  client.on("error", (err) => {
+    console.error("Redis error:", err);
+    process.exit(1);
+  });
 
   return client;
 }
