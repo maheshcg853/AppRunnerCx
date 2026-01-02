@@ -23,7 +23,7 @@ function getRedisClient() {
   });
   if (!redisUrl) throw new Error("REDIS_URL is missing");
 
-  const isTls = false;
+  const isTls = true;
   // const isTls =
   //   process.env.REDIS_TLS === "true" || redisUrl.startsWith("rediss://");
 
@@ -33,7 +33,7 @@ function getRedisClient() {
       tls: isTls,
       // For ElastiCache TLS, many teams set this false.
       // If you want strict validation later, set it to true and use proper CA/certs.
-      rejectUnauthorized: false,
+      rejectUnauthorized: true,
       // rejectUnauthorized: process.env.REDIS_REJECT_UNAUTHORIZED !== "false",
     },
   });
