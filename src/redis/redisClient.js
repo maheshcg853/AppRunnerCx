@@ -12,7 +12,7 @@ function getRedisClient() {
 
   // const redisUrl = process.env.REDIS_URL;
   const redisUrl =
-    "rediss://master.em-redis-cluster-info.3xkamd.aps1.cache.amazonaws.com:6379";
+    "rediss://master.cache-cluster-on-support.3xkamd.aps1.cache.amazonaws.com:6379";
   console.log("anv variables", {
     redisUrl,
     SESSION_SECRET: "super-secret",
