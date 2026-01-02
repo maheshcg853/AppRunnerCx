@@ -10,7 +10,14 @@ let client;
 function getRedisClient() {
   if (client) return client;
 
-  const redisUrl = process.env.REDIS_URL;
+  const redisUrl =
+    "rediss://master.em-redis-cluster-info.3xkamd.aps1.cache.amazonaws.com:6379";
+  console.log("anv variables", {
+    redisUrl,
+    SESSION_SECRET: process.env.SESSION_SECRET,
+    SESSION_COOKIE_NAME: process.env.SESSION_COOKIE_NAME,
+    SESSION_SAMESITE: process.env.SESSION_SAMESITE,
+  });
   if (!redisUrl) throw new Error("REDIS_URL is missing");
 
   const isTls =
