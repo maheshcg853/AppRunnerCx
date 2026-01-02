@@ -13,7 +13,7 @@ function getRedisClient() {
   // const redisUrl = process.env.REDIS_URL;
   const redisUrl =
     "rediss://master.apprunner-elasticcache.qcqeed.use1.cache.amazonaws.com:6379";
-  });
+  
   if (!redisUrl) throw new Error("REDIS_URL is missing");
 
   const isTls = true;
