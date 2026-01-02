@@ -33,7 +33,7 @@ function getRedisClient() {
       tls: isTls,
       // For ElastiCache TLS, many teams set this false.
       // If you want strict validation later, set it to true and use proper CA/certs.
-      rejectUnauthorized: true,
+      rejectUnauthorized: false,
       // rejectUnauthorized: process.env.REDIS_REJECT_UNAUTHORIZED !== "false",
     },
   });
